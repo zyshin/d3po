@@ -10,11 +10,11 @@ setup(
         "absl-py",
         "diffusers==0.17.1",
         "wandb",
-        "torchvision",
+        # "torchvision",
         "inflect==6.0.4",
         "pydantic==1.10.9",
-        "transformers==4.30.2",
-        "accelerate==0.22.0",
-        "torch==2.0.1"
+        # "transformers==4.30.2",
+        # "accelerate==0.22.0",
+        # "torch==2.0.1"
     ],
 )

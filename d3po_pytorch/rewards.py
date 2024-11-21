@@ -35,7 +35,7 @@ def jpeg_compressibility():
     return _fn
 
 
-def aesthetic_score():
+def aesthetic():
     from d3po_pytorch.aesthetic_scorer import AestheticScorer
 
     scorer = AestheticScorer(dtype=torch.float32).cuda()

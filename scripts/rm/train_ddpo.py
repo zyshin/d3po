@@ -315,7 +315,7 @@ def main(_):
             rewards = executor.submit(reward_fn, images, prompts, prompt_metadata)
             # yield to to make sure reward computation starts
             eval_rewards = None
-            if epoch%config.sample.eval_epoch==0:
+            if False:  # if epoch%config.sample.eval_epoch==0:
                 eval_prompts, eval_prompt_metadata = zip(
                 *[prompt_fn(**config.prompt_fn_kwargs) for _ in range(config.sample.eval_batch_size)])
 

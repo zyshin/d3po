@@ -41,7 +41,7 @@ def main(_):
     # basic Accelerate and logging setup
     config = FLAGS.config
 
-    unique_id = datetime.datetime.now().strftime("%Y.%m.%d_%H.%M.%S")
+    unique_id = f"{config.intrinsic_reward_fn}{f'_kl{config.reward_weight}' if config.use_kl else ''} {'' if config.intrinsic_reward_weight == 0.0 else config.intrinsic_reward_weight} {config.seed} lr6e-5 " + datetime.datetime.now().strftime("%m%d_%H:%M")
     if not config.run_name:
         config.run_name = unique_id
     else:
@@ -76,15 +76,17 @@ def main(_):
     )
     if accelerator.is_main_process:
         accelerator.init_trackers(
-            project_name="d3po-pytorch", config=config.to_dict(), init_kwargs={"wandb": {"name": config.run_name}}
+            project_name=f"ddpo-pytorch-{config.project_name}" if config.project_name else "ddpo-pytorch",
+            config=config.to_dict(),
+            init_kwargs={"wandb": {"name": config.run_name}}
         )
     logger.info(f"\n{config}")
     # set seed (device_specific is very important to get different prompts on different devices)
-    np.random.seed(config.seed)
+    # np.random.seed(config.seed)
     available_devices = accelerator.num_processes
-    random_seeds = np.random.randint(0,100000,size=available_devices)
-    device_seed = random_seeds[accelerator.process_index]
-    set_seed(device_seed, device_specific=True)
+    # random_seeds = np.random.randint(0,100000,size=available_devices)
+    # device_seed = random_seeds[accelerator.process_index]
+    set_seed(config.seed, device_specific=True)
 
     # load scheduler, tokenizer and models.
     pipeline = StableDiffusionPipeline.from_pretrained(config.pretrained.model, torch_dtype=torch.float16)
@@ -362,7 +364,7 @@ def main(_):
                 rewards2 = rewards2.cpu().detach().numpy()
                 rewards = np.c_[rewards1, rewards2]
             eval_rewards = None
-            if epoch%config.sample.eval_epoch==0:
+            if False:  # epoch%config.sample.eval_epoch==0:
                 eval_prompts, eval_prompt_metadata = zip(
                 *[prompt_fn(**config.prompt_fn_kwargs) for _ in range(config.sample.eval_batch_size)])
 
@@ -607,9 +609,9 @@ def main(_):
 
                 # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:
-                assert (j == num_train_timesteps - 1) and (
-                    i + 1
-                ) % config.train.gradient_accumulation_steps == 0
+                # assert (j == num_train_timesteps - 1) and (
+                #     i + 1
+                # ) % config.train.gradient_accumulation_steps == 0
                 # log training-related stuff
                 info = {k: torch.mean(torch.stack(v)) for k, v in info.items()}
                 info = accelerator.reduce(info, reduction="mean")

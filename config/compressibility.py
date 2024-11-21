@@ -5,7 +5,7 @@ def get_config():
     config = ml_collections.ConfigDict()
 
     ############ General ############
-    config.project_name = ""
+    config.project_name = "compressibility"
     # run name for wandb logging and checkpoint saving -- if not provided, will be auto-generated based on the datetime.
     config.run_name = ""
     # random seed for reproducibility.
@@ -13,7 +13,7 @@ def get_config():
     # top-level logging directory for checkpoint saving.
     config.logdir = "logs"
     # number of epochs to train for. each epoch is one round of sampling from the model followed by training on those samples.
-    config.num_epochs = 400
+    config.num_epochs = 200
     # number of epochs between saving model checkpoints.
     config.save_freq = 10
     # number of checkpoints to keep before overwriting old ones.
@@ -38,7 +38,7 @@ def get_config():
     config.pretrained = pretrained = ml_collections.ConfigDict()
     # base model to load. either a path to a local directory, or a model name from the HuggingFace model hub.
     # pretrained.model = "stablediffusionapi/anything-v5"
-    pretrained.model = "CompVis/stable-diffusion-v1-4"  # "sd-legacy/stable-diffusion-v1-5"
+    pretrained.model = "CompVis/stable-diffusion-v1-4"
     # revision of the model to load.
     pretrained.revision = "main"
 
@@ -66,7 +66,7 @@ def get_config():
     ############ Training ############
     config.train = train = ml_collections.ConfigDict()
     # batch size (per GPU!) to use for training.
-    train.batch_size = 1
+    train.batch_size = 2
     # whether to use the 8bit Adam optimizer from bitsandbytes.
     train.use_8bit_adam = False
     # learning rate.
@@ -81,7 +81,7 @@ def get_config():
     train.adam_epsilon = 1e-8
     # number of gradient accumulation steps. the effective batch size is `batch_size * num_gpus *
     # gradient_accumulation_steps`.
-    train.gradient_accumulation_steps = 8
+    train.gradient_accumulation_steps = 4
     # maximum gradient norm for gradient clipping.
     train.max_grad_norm = 1.0
     # number of inner epochs per outer epoch. each inner epoch is one iteration through the data collected during one
@@ -130,7 +130,7 @@ def get_config():
 
     ############ Prompt Function ############
     # prompt function to use. see `prompts.py` for available prompt functisons.
-    config.prompt_fn = "simple_animals"
+    config.prompt_fn = "imagenet_animals"
     # kwargs to pass to the prompt function.
     config.prompt_fn_kwargs = {}
     
@@ -140,7 +140,9 @@ def get_config():
     # if the reward_fn is "jpeg_compressibility" or "jpeg_incompressibility", using the default config can reproduce our results.
     # if the reward_fn is "aesthetic_score" and you want to reproduce our results, 
     # set config.num_epochs = 1000, sample.num_batches_per_epoch=1, sample.batch_size=8 and sample.eval_batch_size=8
-    config.reward_fn = "aesthetic"
+    config.reward_fn = "jpeg_compressibility"
+    config.intrinsic_reward_fn = "d3po"
+    config.intrinsic_reward_weight = 0.0
 
 
     return config
